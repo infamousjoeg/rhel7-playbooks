@@ -1,0 +1,30 @@
+---
+- hosts: all
+  gather_facts: yes
+
+- tasks:
+  - name: Install RHSM and Insights
+    yum:
+      name: '{{ item }}'
+      state: present
+    with_items:
+    - redhat-access-insights
+    - subscription-manager
+
+  - name: Register system
+    redhat_subscription:
+      state: present
+      username: '{{ rhsm_username }}'
+      password: '{{ rhsm_password }}'
+      no_log: yes
+
+  - name: Add EPEL Repo
+    yum_repository:
+      name: epel
+      description: EPEL YUM repo 
+      baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+
+  - name: Upgrade All YUM Packages
+    yum:
+      name: '*'
+      state: latest
